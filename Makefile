@@ -41,6 +41,7 @@ CC_OPT		+=	-I $(TIO_DIR)
 CC_OPT		+=	-I $(T1W_DIR)
 CC_OPT		+=	-D ASYNC_BITRATE=9600
 CC_OPT		+=	-D ASYNC_TX_PIN=PB4
+CC_OPT		+=	-D HZ=1000000
 
 LD_OPT		+=	-mmcu=attiny85
 LD_OPT		+=	-Wl,--gc-sections

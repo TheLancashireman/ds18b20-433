@@ -32,16 +32,25 @@
 #include "tinyio.h"
 #include <avr/pgmspace.h>
 
+#define DBG	1
+
 int main(void)
 {
 	u16_t temp = DS18B20_INVALID_TEMP;
 
+#if DBG
+	async_init();
 	printf(PSTR("Hello, world!\n"));
+#endif
 
 	for (;;)
 	{
 		temp = ds18b20_read_temp();
+
+#if DBG
 		printf(PSTR("Temperature 0x%04x\n"), temp);
+		delay_ticks(ms_to_ticks(5000));				/* 5 ms delay */
+#endif
 	}
 
 	return 0;
