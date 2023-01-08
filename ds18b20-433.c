@@ -38,18 +38,22 @@ int main(void)
 {
 	u16_t temp = DS18B20_INVALID_TEMP;
 
+	timing_init();
+
 #if DBG
 	async_init();
+	delay_ms(500);				/* 0.5 s delay */
 	printf(PSTR("Hello, world!\n"));
 #endif
 
+	delay_ms(500);				/* 0.5 s delay */
 	for (;;)
 	{
 		temp = ds18b20_read_temp();
 
 #if DBG
 		printf(PSTR("Temperature 0x%04x\n"), temp);
-		delay_ticks(ms_to_ticks(5000));				/* 5 ms delay */
+		delay_ms(5000);			/* 5 s delay */
 #endif
 	}
 
