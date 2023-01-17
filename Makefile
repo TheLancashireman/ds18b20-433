@@ -32,30 +32,27 @@ GLD			=	avr-gcc
 GAR			=	avr-ar
 OBJCOPY		=	avr-objcopy
 
-ifeq ($(MCU), ATTINY44)
+ifeq ($(MCU), T44)
 GNU_MCU		:=	attiny44
-ASYNC_PORT	:=	\'B\'
-ASYNC_PIN	:=	PB2
-else
+HDR			:=	"\"ds18b20-t44.h\""
+else ifeq ($(MCU), T85)
 GNU_MCU		:=	attiny85
-ASYNC_PORT	:=	\'B\'
-ASYNC_PIN	:=	PB4
+HDR			:=	"\"ds18b20-t85.h\""
+else
+$(error MCU must be specified on commant line)
 endif
 
 CC_OPT		+=	-mmcu=$(GNU_MCU)
+CC_OPT		+=	-D TINYLIB_CFG_HDR=$(HDR)
 CC_OPT		+=	-fno-builtin
 CC_OPT		+=	-Os
 CC_OPT		+=	-g
 CC_OPT		+=	-Wall
+CC_OPT		+=	-I .
 CC_OPT		+=	-I $(TLIB_DIR)
 CC_OPT		+=	-I $(TSPI_DIR)
 CC_OPT		+=	-I $(TIO_DIR)
 CC_OPT		+=	-I $(T1W_DIR)
-CC_OPT		+=	-D ASYNC_BITRATE=9600
-CC_OPT		+=	-D ASYNC_TX_PORT=$(ASYNC_PORT)
-CC_OPT		+=	-D ASYNC_TX_PIN=$(ASYNC_PIN)
-CC_OPT		+=	-D HZ=1000000
-CC_OPT		+=	-D PASSIVE_TIME=1
 
 # Debugging
 #CC_OPT		+= -D W1_PRESENCE=0
