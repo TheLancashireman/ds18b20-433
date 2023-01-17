@@ -29,18 +29,23 @@
 
 #include "ds18b20-433.h"
 #include "tinylib.h"
-#include "tinyio.h"
+#include "tinyspi.h"
+#include "rfm64w.h"
 #include <avr/pgmspace.h>
 
 #define DBG	1
+#if DBG
+#include "tinyio.h"			/* For early debugging; printf(), putc() etc. */
+#endif
 
 int main(void)
 {
 	u16_t temp = DS18B20_INVALID_TEMP;
 
-	timing_init();
+	spi_masterinit();
 
 #if DBG
+	timing_init();
 	async_init();
 	delay_ms(500);				/* 0.5 s delay */
 	printf(PSTR("Hello, world!\n"));
@@ -49,6 +54,14 @@ int main(void)
 	delay_ms(500);				/* 0.5 s delay */
 	for (;;)
 	{
+		r64_select(R64_SEL_CFG);
+		for (u8_t a = 0; a < 32; a++ )
+		{
+			u8_t v = r64_readreg(a);
+			printf(PSTR("Register %2d = 0x%04x\n"), a, v);
+		}
+		r64_select(R64_SEL_NONE);
+
 		temp = ds18b20_read_temp();
 
 #if DBG

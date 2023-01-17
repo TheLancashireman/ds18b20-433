@@ -23,6 +23,7 @@ ISPPORT		?=	/dev/ttyUSB0
 OBJ_DIR		?=	$(BUILD)/o
 LIB_DIR		?=	$(BUILD)/a
 TLIB_DIR	?=	../tiny-bare-metal/tinylib
+TSPI_DIR	?=	../tiny-bare-metal/tinyspi
 TIO_DIR		?=	../tiny-bare-metal/tinyio
 T1W_DIR		?=	../tiny-bare-metal/tiny1w
 
@@ -31,16 +32,28 @@ GLD			=	avr-gcc
 GAR			=	avr-ar
 OBJCOPY		=	avr-objcopy
 
-CC_OPT		+=	-mmcu=attiny85
+ifeq ($(MCU), ATTINY44)
+GNU_MCU		:=	attiny44
+ASYNC_PORT	:=	\'B\'
+ASYNC_PIN	:=	PB2
+else
+GNU_MCU		:=	attiny85
+ASYNC_PORT	:=	\'B\'
+ASYNC_PIN	:=	PB4
+endif
+
+CC_OPT		+=	-mmcu=$(GNU_MCU)
 CC_OPT		+=	-fno-builtin
 CC_OPT		+=	-Os
 CC_OPT		+=	-g
 CC_OPT		+=	-Wall
 CC_OPT		+=	-I $(TLIB_DIR)
+CC_OPT		+=	-I $(TSPI_DIR)
 CC_OPT		+=	-I $(TIO_DIR)
 CC_OPT		+=	-I $(T1W_DIR)
 CC_OPT		+=	-D ASYNC_BITRATE=9600
-CC_OPT		+=	-D ASYNC_TX_PIN=PB4
+CC_OPT		+=	-D ASYNC_TX_PORT=$(ASYNC_PORT)
+CC_OPT		+=	-D ASYNC_TX_PIN=$(ASYNC_PIN)
 CC_OPT		+=	-D HZ=1000000
 CC_OPT		+=	-D PASSIVE_TIME=1
 
@@ -48,7 +61,7 @@ CC_OPT		+=	-D PASSIVE_TIME=1
 #CC_OPT		+= -D W1_PRESENCE=0
 #CC_OPT		+= -D W1_DBG=1
 
-LD_OPT		+=	-mmcu=attiny85
+LD_OPT		+=	-mmcu=$(GNU_MCU)
 LD_OPT		+=	-Wl,--gc-sections
 LD_OPT		+=	-Os
 LD_OPT		+=	-L $(LIB_DIR)
@@ -59,6 +72,7 @@ LD_LIB		+=	-lm
 OBJS		+=	$(OBJ_DIR)/ds18b20-433.o
 
 VPATH		+=	$(TLIB_DIR)
+VPATH		+=	$(TSPI_DIR)
 VPATH		+=	$(TIO_DIR)
 VPATH		+=	$(T1W_DIR)
 
@@ -85,8 +99,9 @@ $(BUILD)/ds18b20-433.ihex:	$(BUILD)/ds18b20-433.elf
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
 upload:		$(BUILD)/ds18b20-433.ihex
-	avrdude -P $(ISPPORT) -b 19200 -c avrisp -p t85 -U flash:w:build/ds18b20-433.ihex:i
+	avrdude -P $(ISPPORT) -b 19200 -c avrisp -p t44 -U flash:w:build/ds18b20-433.ihex:i
 
 include $(TIO_DIR)/tinyio.make
 include $(T1W_DIR)/tiny1w.make
+include $(TSPI_DIR)/tinyspi.make
 include $(TLIB_DIR)/tinylib.make
